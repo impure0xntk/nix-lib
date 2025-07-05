@@ -33,7 +33,7 @@ in rec {
       # writeShellApplication is function, not derivation.
       # So pkgs.writeShellApplication.override~ is not working.
       # shellApplication = pkgs.writeShellApplication {
-      shellApplication = writeShellApplication {
+      shellApplication = pkgs.writeShellApplication {
         inherit name text runtimeInputs meta checkPhase excludeShellChecks;
       };
       substitutes =
@@ -106,26 +106,4 @@ in rec {
   #     includeOptions = interpreterParameters.ysh.defaultIncludeOption ++ includeOptions;
   #     excludeOptions = interpreterParameters.ysh.defaultExcludeOption ++ excludeOptions;
   #   };
-
-  writeShellApplication = args@{
-    name
-    , text
-    , runtimeInputs ? [ ]
-    , ...
-}:
-  let
-    shUtils = pkgs.sh-utils.lib;
-  in pkgs.writeShellApplication (args // {
-    runtimeInputs = runtimeInputs ++ [ shUtils ];
-    text = ''
-{
-  current_dir="$(pwd)"
-  cd "${shUtils}/lib" || exit 1
-
-  # shellcheck disable=SC1091
-  . ${shUtils}/lib/_loader.sh common
-  cd "$current_dir"
-  unset current_dir
-}
-  '' + text;});
 }
