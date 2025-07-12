@@ -1,29 +1,29 @@
 {
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixpkgs-unstable";
+    flake-utils.url = "github:numtide/flake-utils";
   };
 
-  outputs =
-    {
-      self,
-      nixpkgs,
-      ...
-    }:
+  outputs = { self, nixpkgs, flake-utils, ... }:
     let
-      system = "x86_64-linux";
-      pkgs = nixpkgs.legacyPackages.${system};
-    in {
-      overlays.default = final: prev: {
-        my = import ./lib {
-          inherit pkgs;
-          lib = prev;
-        };
+      overlay = final: prev: {
+        lib = prev.lib.extend (selflib: superlib: {
+          my = import ./lib {
+            pkgs = final;
+            lib = superlib;
+          };
+        });
       };
-
-      checks.${system}.lib-extend =
-        let
-          lib = pkgs.lib.extend (self.overlays.default);
-        in
-        import ./tests { inherit pkgs lib; };
-    };
+    in
+    {
+      overlays.default = overlay;
+    } // flake-utils.lib.eachDefaultSystem (system:
+      let
+        pkgs = import nixpkgs { inherit system; overlays = [ overlay ]; };
+        lib = pkgs.lib;
+      in
+      {
+        lib = lib.my;
+        checks.lib-extend = import ./tests { inherit pkgs lib; };
+      });
 }
