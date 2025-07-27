@@ -96,4 +96,56 @@
   in {
     inherit schemaAndHost port;
   };
+
+  # Dotenv lines to bash/fish envrc(source command callable) format
+  formatEnvLines = {
+    raw,
+    format ? "bash" # or fish
+  }:
+    let
+      lines = lib.splitString "\n" raw;
+
+      toFormattedLine = line:
+        let
+          trimmed = lib.strings.trim line;
+        in
+          if trimmed == "" then
+            ""
+          else if lib.hasPrefix "#" trimmed then
+            trimmed
+          else
+            let
+              parts = lib.splitString "=" trimmed;
+            in
+              if builtins.length parts != 2 then
+                "# INVALID: ${trimmed}"
+              else
+                let
+                  key = lib.elemAt parts 0;
+                  value = lib.elemAt parts 1;
+                in
+                  # Add other format.
+                  if format == "fish" then
+                    "set -gx ${key} ${value}"
+                  else
+                    "export ${key}=${value}";
+    in
+      lib.concatStringsSep "\n" (map toFormattedLine lines);
+
+  # https://discourse.nixos.org/t/nix-function-to-merge-attributes-records-recursively-and-concatenate-arrays/2030/9
+  deepMerge = lhs: rhs:
+    lhs // rhs
+    // (builtins.mapAttrs (
+      rName: rValue:
+      let
+        lValue = lhs.${rName} or null;
+      in
+      if builtins.isAttrs lValue && builtins.isAttrs rValue then
+        lib.my.deepMerge lValue rValue
+      else if builtins.isList lValue && builtins.isList rValue then
+        lValue ++ rValue
+      else
+        rValue
+    ) rhs);
 }
+
