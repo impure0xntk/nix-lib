@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - 'deps/**'
   pull_request:
     branches:
       - main
