@@ -1,0 +1,17 @@
+name: "Flake.nix: check Nix flake"
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  static-check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: DeterminateSystems/determinate-nix-action@main
+      - run: nix flake check --all-systems --show-trace
