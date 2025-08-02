@@ -16,6 +16,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: DeterminateSystems/determinate-nix-action@v3
+      - uses: DeterminateSystems/magic-nix-cache-action@main
       - name: Generate branch date
         run: |
           echo "CURRENT_DATE=$(date +'%Y%m%d%H%M%S')" >> $GITHUB_ENV
@@ -23,7 +24,7 @@ jobs:
         with:
           nix-options: --debug --log-format raw
           branch: "deps/update-flake-lock-${{ env.CURRENT_DATE }}"
-          commit-msg: "dpes: Update flake.lock"
+          commit-msg: "ci: Update flake.lock"
           pr-title: "Update Nix flake inputs" # Title of PR to be created
           pr-labels: |                  # Labels to be set on the PR
             dependencies
