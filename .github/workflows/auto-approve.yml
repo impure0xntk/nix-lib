@@ -63,5 +63,5 @@ jobs:
             steps.find_pr.outputs.AUTHOR == 'github-actions[bot]'
           )
         run: |
-          gh pr review --approve "${{ steps.find_pr.outputs.PR_URL }}"
+          # gh pr review --approve "${{ steps.find_pr.outputs.PR_URL }}"
           gh pr merge --auto --squash "${{ steps.find_pr.outputs.PR_URL }}"
