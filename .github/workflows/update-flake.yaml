@@ -1,3 +1,6 @@
+# To use this workflow, create and use PAT.
+# https://github.com/DeterminateSystems/update-flake-lock/tree/main#running-github-actions-ci
+
 name: "Flake.lock: update Nix dependencies"
 
 on:
@@ -29,4 +32,6 @@ jobs:
           pr-labels: |                  # Labels to be set on the PR
             dependencies
             automated
+          # To trigger another workflows automatically
+          token: ${{ secrets.GH_TOKEN_FOR_UPDATES }}
 
