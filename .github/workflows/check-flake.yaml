@@ -3,7 +3,7 @@ name: "Flake.nix: check Nix flake"
 on:
   push:
     branches: [ main ]
-  pull_request:
+  pull_request_target: # for manual and automated
     types: [opened, synchronize, reopened]
     branches: [ main ]
   workflow_dispatch:
@@ -16,7 +16,8 @@ jobs:
       - name: Checkout source branch (head)
         uses: actions/checkout@v4
         with:
-          ref: ${{ github.head_ref }}
+          # Using head.sha for pull_request_target to avoid unintended results with head.ref
+          ref: ${{ github.event.pull_request.head.sha }}
       - uses: DeterminateSystems/determinate-nix-action@main
       - uses: DeterminateSystems/magic-nix-cache-action@main
       - run: nix flake check --all-systems --show-trace
