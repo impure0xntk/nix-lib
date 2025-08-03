@@ -14,6 +14,7 @@ jobs:
     if: github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v4
       # Attempt to find an open PR whose head branch matches workflow_run.head_branch
       # Then extract its URL, author, SHA, and labels
       - name: Find PR for this workflow_run
