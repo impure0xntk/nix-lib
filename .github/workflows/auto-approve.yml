@@ -18,6 +18,8 @@ jobs:
       # Then extract its URL, author, SHA, and labels
       - name: Find PR for this workflow_run
         id: find_pr
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN_FOR_UPDATES }}
         run: |
           PR_JSON=$(gh pr list \
             --state open \
@@ -49,6 +51,8 @@ jobs:
       #  - The PR author is either the repo owner or github-actions[bot]
       # Then: auto-approve and enable auto-merge
       - name: Approve and Auto-Merge
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN_FOR_UPDATES }}
         if: >-
           steps.find_pr.outputs.PR_FOUND == 'true' &&
           steps.find_pr.outputs.HEAD_SHA == github.event.workflow_run.head_sha &&
