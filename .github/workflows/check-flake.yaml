@@ -3,20 +3,28 @@ name: "Flake.nix: check Nix flake"
 on:
   push:
     branches: [ main ]
-  pull_request_target: # for manual and automated
+  pull_request:
     types: [opened, synchronize, reopened]
   workflow_dispatch:
+  workflow_call:
+    inputs:
+      pr_head_sha:
+        description: "The SHA of the pull request's head commit. Used when called from another workflow."
+        required: false
+        type: string
 
 jobs:
   nix-flake-check:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     timeout-minutes: 10
     steps:
       - name: Checkout source branch (head)
         uses: actions/checkout@v4
         with:
           # Using head.sha for pull_request_target to avoid unintended results with head.ref
-          ref: ${{ github.event.pull_request.head.sha }}
+          ref: ${{ inputs.pr_head_sha || github.event.pull_request.head.sha || github.ref }}
       - uses: DeterminateSystems/determinate-nix-action@main
       - uses: DeterminateSystems/magic-nix-cache-action@main
       - run: nix flake check --all-systems --show-trace

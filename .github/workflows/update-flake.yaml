@@ -24,6 +24,7 @@ jobs:
         run: |
           echo "CURRENT_DATE=$(date +'%Y%m%d%H%M%S')" >> $GITHUB_ENV
       - uses: DeterminateSystems/update-flake-lock@main
+        id: update-flake-lock
         with:
           nix-options: --debug --log-format raw
           branch: "deps/update-flake-lock-${{ env.CURRENT_DATE }}"
@@ -38,4 +39,3 @@ jobs:
           git-author-email: github-actions[bot]@users.noreply.github.com
           git-committer-name: github-actions[bot]
           git-committer-email: github-actions[bot]@users.noreply.github.com
-
