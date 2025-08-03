@@ -1,8 +1,6 @@
-name: "Flake.nix: check Nix flake"
+name: "Flake.nix: check Nix flake for Pull Requests"
 
 on:
-  push:
-    branches: [ main ]
   pull_request_target: # for manual and automated
     types: [opened, synchronize, reopened]
   workflow_dispatch:
