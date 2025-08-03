@@ -2,7 +2,7 @@ name: Auto Approve
 
 on:
   workflow_run:
-    workflows: ["check-flake"]
+    workflows: ["Flake.nix: check Nix flake"]
     types:
       - completed
 
@@ -11,17 +11,56 @@ permissions:
 
 jobs:
   auto-approve:
+    if: github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
-    if: >-
-      github.event.workflow_run.conclusion == 'success' &&
-      (github.event.workflow_run.actor.login == github.repository_owner || github.event.workflow_run.actor.login == 'github-actions[bot]') &&
-      contains(github.event.workflow_run.pull_requests[0].labels.*.name, 'automated')
     steps:
-      - name: Approve PR
-        env:
-          PR_URL: ${{ github.event.workflow_run.pull_requests[0].url }}
-        run: gh pr review --approve "$PR_URL"
-      - name: Enable Auto-Merge
-        env:
-          PR_URL: ${{ github.event.workflow_run.pull_requests[0].url }}
-        run: gh pr merge --auto --squash "$PR_URL"
+      # Set up GitHub CLI (gh) to query and interact with PRs
+      - name: Set up gh CLI
+        uses: cli/gh-action@v2
+
+      # Attempt to find an open PR whose head branch matches workflow_run.head_branch
+      # Then extract its URL, author, SHA, and labels
+      - name: Find PR for this workflow_run
+        id: find_pr
+        run: |
+          PR_JSON=$(gh pr list \
+            --state open \
+            --head "${{ github.event.workflow_run.head_branch }}" \
+            --json url,author,labels,headRefOid \
+            -q '.[0]')
+          
+          if [ -z "$PR_JSON" ]; then
+            echo "No matching PR found"
+            echo "PR_FOUND=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          PR_URL=$(echo "$PR_JSON" | jq -r '.url')
+          AUTHOR=$(echo "$PR_JSON" | jq -r '.author.login')
+          HEAD_SHA=$(echo "$PR_JSON" | jq -r '.headRefOid')
+          HAS_AUTOMATED=$(echo "$PR_JSON" | jq -r '.labels[].name' | grep -q '^automated$' && echo true || echo false)
+          
+          echo "PR_URL=$PR_URL" >> "$GITHUB_OUTPUT"
+          echo "AUTHOR=$AUTHOR" >> "$GITHUB_OUTPUT"
+          echo "HEAD_SHA=$HEAD_SHA" >> "$GITHUB_OUTPUT"
+          echo "HAS_AUTOMATED=$HAS_AUTOMATED" >> "$GITHUB_OUTPUT"
+          echo "PR_FOUND=true" >> "$GITHUB_OUTPUT"
+
+      # If:
+      #  - The found PR exists
+      #  - The head SHA matches the triggering workflow's SHA
+      #  - The PR has an 'automated' label
+      #  - The PR author is either the repo owner or github-actions[bot]
+      # Then: auto-approve and enable auto-merge
+      - name: Approve and Auto-Merge
+        if: >-
+          steps.find_pr.outputs.PR_FOUND == 'true' &&
+          steps.find_pr.outputs.HEAD_SHA == github.event.workflow_run.head_sha &&
+          steps.find_pr.outputs.HAS_AUTOMATED == 'true' &&
+          (
+            steps.find_pr.outputs.AUTHOR == github.repository_owner ||
+            steps.find_pr.outputs.AUTHOR == 'github-actions[bot]'
+          )
+        run: |
+          gh pr review --approve "${{ steps.find_pr.outputs.PR_URL }}"
+          gh pr merge --auto --squash "${{ steps.find_pr.outputs.PR_URL }}"
