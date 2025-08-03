@@ -2,18 +2,14 @@ name: "Flake.nix: check Nix flake"
 
 on:
   push:
-    branches:
-      - main
-      - 'deps/**'
+    branches: [ main ]
   pull_request:
-    branches:
-      - main
+    types: [opened, synchronize, reopened]
+    branches: [ main ]
   workflow_dispatch:
 
 jobs:
   nix-flake-check:
-    permissions:
-      statuses: write
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
