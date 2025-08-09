@@ -26,7 +26,7 @@
       lines = lib.splitString "\n" content;
       first = lib.head lines;
       rest  = lib.concatStringsSep "\n" (lib.tail lines);
-    in if lib.startsWith "#!" first then rest else content;
+    in if lib.hasPrefix "#!" first then lib.trimWith { start = true; } rest else content;
 
   # https://discourse.nixos.org/t/make-neovim-wrapper-desktop-optional/37597/3
   removeDesktopIcon = { package, desktopFileName ? "${package.name}.desktop" }: (lib.hiPrio (pkgs.runCommand "${package.name}.desktop-hide" { } ''

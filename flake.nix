@@ -29,7 +29,10 @@
       in
       {
         inherit lib;
-        checks.lib-extend = import ./tests { inherit pkgs lib; };
+        checks = {
+          lib-extend = import ./tests { inherit pkgs lib; };
+          utility-functions = import ./tests/utility-functions.nix { inherit pkgs lib; };
+        };
       }
     );
 }
