@@ -31,7 +31,11 @@
         inherit lib;
         checks = {
           lib-extend = import ./tests { inherit pkgs lib; };
-          utility-functions = import ./tests/utility-functions.nix { inherit pkgs lib; };
+          utility = import ./tests/utility.nix { inherit pkgs lib; };
+          builtins = import ./tests/builtins.nix { inherit pkgs lib; };
+          builders = import ./tests/builders.nix { inherit pkgs lib; };
+          fetchers = import ./tests/fetchers.nix { inherit pkgs lib; };
+          windows = import ./tests/windows.nix { inherit pkgs lib; };
         };
       }
     );

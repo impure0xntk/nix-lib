@@ -56,7 +56,7 @@
       noProxyHostsStr = lib.concatStringsSep "|" noProxyHosts;
     in
     assert lib.assertMsg
-      (builtins.length (lib.strings.splitString "://" proxyWithoutSchema) > 0)
+      (builtins.length (lib.strings.splitString "://" proxyWithoutSchema) == 1)
       "proxyWithoutSchema must not have :// .";
     {
       "http.proxyHost" = proxyHost;
