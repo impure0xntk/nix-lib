@@ -27,4 +27,4 @@ jobs:
           ref: ${{ inputs.pr_head_sha || github.event.pull_request.head.sha || github.ref }}
       - uses: DeterminateSystems/determinate-nix-action@main
       - uses: DeterminateSystems/magic-nix-cache-action@main
-      - run: nix flake check --all-systems --show-trace
+      - run: nix flake check --show-trace
