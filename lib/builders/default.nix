@@ -55,7 +55,7 @@ in rec {
           "${substituteIncludeOptions} ${substituteExcludeOptions}"
         );
     in (shellApplication).overrideAttrs(old: rec {
-      runtimeInputs = [pkgs.oil];
+      runtimeInputs = [pkgs.oils-for-unix];
       # To patch all shebangs as oil/ysh, disable dontPatchShebangs.
       # Last line executes to check format.
       # Expected workflow:
@@ -64,12 +64,12 @@ in rec {
       # 3. Patch as runtimeShell on pkgs.writeShellApplication.
       checkPhase = old.checkPhase + ''
         substituteInPlace $out/bin/${name} \
-          --replace '${pkgs.runtimeShell}' '${pkgs.oil}/bin/${executableName}' \
+          --replace '${pkgs.runtimeShell}' '${pkgs.oils-for-unix}/bin/${executableName}' \
           --replace 'set -o nounset' "" \
           --replace 'set -o pipefail' "" \
           --replace 'set -o errexit' '${substitutes}'
 
-        '${pkgs.oil}/bin/${executableName}' --ast-format none -n "$target"
+        '${pkgs.oils-for-unix}/bin/${executableName}' --ast-format none -n "$target"
       '';
     });
 

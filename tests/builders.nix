@@ -48,7 +48,7 @@ let
 
 in
   # Assertions
-  assert (lib.head (lib.splitString "\n" basicAppContent)) == "#!${pkgs.oil}/bin/osh";
+  assert (lib.head (lib.splitString "\n" basicAppContent)) == "#!${pkgs.oils-for-unix}/bin/osh";
   assert lib.strings.hasInfix ''echo "Hello, Oil!"'' basicAppContent;
 
   # Test case 1: Basic functionality
