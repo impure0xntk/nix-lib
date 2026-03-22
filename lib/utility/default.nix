@@ -147,5 +147,15 @@ rec {
       else
         rValue
     ) rhs);
+
+  indentLines = indent: str:
+    let
+      hasTrailingNewline = lib.hasSuffix "\n" str;
+      rawLines = lib.splitString "\n" str;
+      lines = if hasTrailingNewline then lib.init rawLines else rawLines;
+    in
+      lib.concatStringsSep "\n" (
+        map (l: if l == "" then "" else indent + l) lines
+      ) + (if hasTrailingNewline then "\n" else "");
 }
 
