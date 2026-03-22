@@ -2,7 +2,7 @@
 , lib,
 ...
 }:
-{
+rec {
   # To get self path from passthru, use overrideAttrs: https://discourse.nixos.org/t/out-in-passthru/23241/3
   genSshKeyPair = { name ? "id_ed25519", ...}:
     pkgs.stdenv.mkDerivation (final: {
@@ -141,7 +141,7 @@
         lValue = lhs.${rName} or null;
       in
       if builtins.isAttrs lValue && builtins.isAttrs rValue then
-        lib.my.deepMerge lValue rValue
+        deepMerge lValue rValue
       else if builtins.isList lValue && builtins.isList rValue then
         lValue ++ rValue
       else
